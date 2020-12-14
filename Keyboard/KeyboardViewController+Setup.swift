@@ -23,6 +23,9 @@ extension KeyboardViewController {
     
     // MARK: - Normal Layouts
     
+    // keyboardStackView
+    // ├─ toolBar
+    // └─ keysRows
     private func setup(layout: KeyboardLayout) {
         keyboardStackView.removeAllArrangedSubviews()
         toolBar.tintColor = isDarkAppearance ? .white : .black
@@ -137,10 +140,12 @@ extension KeyboardViewController {
     
     // MARK: - Make Keys
     
+    // makeKeyRows 返回一个 UIStackView 的数组，其每一项是键盘上一行 (row) 的元素
     private func makeKeysRows(for eventsRows: [[KeyboardEvent]]) -> [UIStackView] {
         let keysRows: [UIStackView] = eventsRows.map { makeKeysRow(for: $0) }
         return keysRows
     }
+    // makeKeysRow 返回一个 UIStackView, 代表一行按键, 每个按键是一个 UIView
     private func makeKeysRow(for events: [KeyboardEvent]) -> UIStackView {
         let stackView: UIStackView = UIStackView()
         stackView.axis = .horizontal
@@ -148,6 +153,7 @@ extension KeyboardViewController {
         stackView.addMultipleArrangedSubviews(events.map { makeKey(for: $0) })
         return stackView
     }
+    // makeKey 返回一个 UIView, 代表一个按键
     private func makeKey(for event: KeyboardEvent) -> UIView {
         let keyView: KeyButton = KeyButton(keyboardEvent: event, viewController: self)
         if event == .switchInputMethod {
