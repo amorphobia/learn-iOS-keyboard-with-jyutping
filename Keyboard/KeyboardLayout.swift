@@ -1,5 +1,6 @@
 import UIKit
 
+// KeyboardLayout 是一个枚举类, swift 里的枚举类可以实现一些方法, 做到比 c++ 枚举类更多的事情
 enum KeyboardLayout: Equatable {
     case
     jyutping,
@@ -20,6 +21,7 @@ enum KeyboardLayout: Equatable {
     candidateBoard,
     settingsView
     
+    // keys 方法返回一个 KeyboardEvent 的二维数组, 具体代码会根据本枚举类的类型来调用不同的方法
     func keys(for viewController: UIInputViewController) -> [[KeyboardEvent]] {
         switch self {
         case .jyutping:
@@ -68,6 +70,7 @@ enum KeyboardLayout: Equatable {
 }
 
 private extension KeyboardLayout {
+    // jyutpingKeys 返回 KeyboardEvent 的二维数组, 这是基本的拼音键盘
     func jyutpingKeys(for viewController: UIInputViewController) -> [[KeyboardEvent]] {
         let arrayWithTextArray: [[String]] = [
             ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],

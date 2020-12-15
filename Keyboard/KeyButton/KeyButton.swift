@@ -61,6 +61,8 @@ final class KeyButton: UIButton {
     // 在 SwiftUI 里面使用 gestures 来实现
     // 参考 https://developer.apple.com/documentation/swiftui/gestures and https://developer.apple.com/documentation/swiftui/adding-interactivity-with-gestures
     // NSHostingView see https://developer.apple.com/documentation/swiftui/nshostingview
+
+    // touchesBegan 只涉及到 UI 的变化, 没有按键逻辑上的代码
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         switch keyboardEvent {
@@ -69,14 +71,45 @@ final class KeyButton: UIButton {
             // .regular: 表示竖屏 see https://developer.apple.com/documentation/uikit/uitraitcollection
             // 若是 SwiftUI, 可参见 https://stackoverflow.com/questions/57652242/how-to-detect-whether-targetenvironment-is-ipados-in-swiftui
             if viewController.traitCollection.userInterfaceIdiom == .phone && viewController.traitCollection.verticalSizeClass == .regular {
+                // 初始化为没有按键预览
                 self.previewLabel.text = nil
                 self.previewLabel.removeFromSuperview()
                 
                 let keyWidth: CGFloat = keyButtonView.frame.width
                 let keyHeight: CGFloat = keyButtonView.frame.height
                 let bottomCenter: CGPoint = CGPoint(x: keyButtonView.frame.origin.x + keyWidth / 2, y: keyButtonView.frame.maxY)
+                // startBezierPath 的控制点长这个样子
+                //    +-----------E---+
+                //    +   |       |   +
+                //    C...D       F...+
+                //    +               +
+                //    +               +
+                //    +...B       H...G
+                //    +   |       |   +
+                //    +---A---o-------+
                 let startPath: UIBezierPath = startBezierPath(origin: bottomCenter, keyWidth: keyWidth, keyHeight: keyHeight, keyCornerRadius: 5)
+                // previewBezierPath 的控制点长这个样子
+                // 看起来
+                //    +-------------------G---+
+                //    +   |               |   +
+                //    E...F               H...+
+                //    +                       +
+                //    +                       +
+                //    D                       J
+                //     .                     .
+                //       .                 .
+                //        C               K
+                //        +               +
+                //        +               +
+                //        +...B       M...L
+                //        +   |       |   +
+                //        +---A---o-------+
                 let previewPath: UIBezierPath = previewBezierPath(origin: bottomCenter, previewCornerRadius: 10, keyWidth: keyWidth, keyHeight: keyHeight, keyCornerRadius: 5)
+                // startPath -> shapeLayer.path = startPath.cgPath
+                // previewPath -> animation.toValue = previewPath.cgPath -> shapeLayer.add(animation, forKey: animation.keyPath)
+                //     shapeLayer -> layer.addSublayer(shapeLayer)
+                // 这里应该是按键的形状, 从类似与 startPath 定义的形状开始, 通过动画变成了 previewPath 定义的形状
+                // 需要继续学习 Core Animation 搞清楚具体如何使用
                 shapeLayer.path = startPath.cgPath
                 shapeLayer.fillColor = buttonColor.cgColor
                 
@@ -87,6 +120,7 @@ final class KeyButton: UIButton {
                 animation.isRemovedOnCompletion = false
                 animation.timingFunction = CAMediaTimingFunction(name: .default)
                 shapeLayer.add(animation, forKey: animation.keyPath)
+                // var layer: CALayer 定义在 UIView 里面 see https://developer.apple.com/documentation/uikit/uiview
                 layer.addSublayer(shapeLayer)
                 
                 let labelHeight: CGFloat = previewPath.bounds.height - keyHeight - 8
@@ -103,6 +137,7 @@ final class KeyButton: UIButton {
             }
         case .space:
             keyButtonView.backgroundColor = self.highlightButtonColor
+            // spaceTouchPoint 会在 touchesMoved 里面用到, 用于计算是否移动光标
             spaceTouchPoint = touches.first?.location(in: self) ?? .zero
             performedDraggingOnSpace = false
         case .backspace:
@@ -119,18 +154,24 @@ final class KeyButton: UIButton {
         invalidateBackspaceTimers()
         
         if keyboardEvent == .space {
+            // 在 touchesMoved 里, 如果移动距离足够, performedDraggingOnSpace 会设为 true
             guard !performedDraggingOnSpace else {
+                // 当手指离开空格键的时候, 若移动量不足, 重置 spaceTouchPoint 并将空格键的 UI 还原
                 spaceTouchPoint = .zero
                 changeColorToNormal()
                 return
             }
             switch viewController.keyboardLayout {
             case .jyutping, .jyutpingUppercase:
+                // 当前有候选字, 空格键将上屏第一个候选, 然后播放按键音
                 if !viewController.candidates.isEmpty {
                     let candidate: Candidate = viewController.candidates[0]
                     viewController.textDocumentProxy.insertText(candidate.text)
                     AudioFeedback.perform(audioFeedback: .modify)
-                    viewController.candidateSequence.append(candidate)
+                    // lazy var candidateSequence: [Candidate] = [] 定义在 KeyboardViewController.swift 里面
+                    viewController.candidateSequence.append(candidate) // 不太理解
+                    // 这个 currentInputText 是当前输入的*拼音*字符, 可以将其理解为一个 buffer. 这句话就是把上屏的这个候选词的拼音从这个 buffer 里去掉, 接下来继续处理 buffer 里剩余的拼音
+                    // var currentInputText: String = ""
                     viewController.currentInputText = String(viewController.currentInputText.dropFirst(candidate.input.count))
                     if viewController.currentInputText.isEmpty {
                         var combinedCandidate: Candidate = viewController.candidateSequence[0]

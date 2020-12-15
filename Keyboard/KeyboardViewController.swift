@@ -124,18 +124,23 @@ final class KeyboardViewController: UIInputViewController {
     }
     
     let imeQueue: DispatchQueue = DispatchQueue(label: "im.cantonese.ime", qos: .userInitiated)
+    // currentInputText 是当前输入的*拼音*字符, 可以将其理解为一个 buffer
     var currentInputText: String = "" {
         didSet {
             DispatchQueue.main.async {
+                // 当输入缓冲区变化的时候, 更新 toolBar 的显示
                 self.toolBar.update()
             }
             if currentInputText.isEmpty {
+                // 如果缓冲区空了, 候选词直接设为空
                 candidates = []
             } else {
+                // 如果缓冲区还有内容, 就调用引擎获取新的候选词
                 imeQueue.async {
                     self.suggestCandidates()
                 }
             }
+            // 这里应该是把缓冲区的字符标记为已选择, 表示还没有上屏
             let range: NSRange = NSRange(location: currentInputText.count, length: 0)
             textDocumentProxy.setMarkedText(currentInputText, selectedRange: range)
         }
