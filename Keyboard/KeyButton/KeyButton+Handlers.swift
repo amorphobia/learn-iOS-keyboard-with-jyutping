@@ -122,9 +122,11 @@ extension KeyButton {
         AudioFeedback.play(for: self.keyboardEvent)
     }
     @objc private func handleBackspace() {
+        // 首先删除一个字符
         DispatchQueue.main.async {
             self.performBackspace()
         }
+        // 等待一段稍长一点的时间, 如果仍没有抬起手指, 则每过一个稍短的时间, 就删除一个字符
         slowBackspaceTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { _ in
             self.fastBackspaceTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.performBackspace), userInfo: nil, repeats: true)
         }

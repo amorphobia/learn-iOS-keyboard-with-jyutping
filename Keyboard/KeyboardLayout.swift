@@ -3,6 +3,11 @@ import UIKit
 // KeyboardLayout 是一个枚举类, swift 里的枚举类可以实现一些方法, 做到比 c++ 枚举类更多的事情
 enum KeyboardLayout: Equatable {
     case
+    // 或许可以使用
+    // jyutping(Bool) 和 alphabetic(Bool)
+    // Bool 表示是否为大写键盘
+    // (存疑) 另外, 好像可以加上参数名, 写为
+    // jyutping(upperCase: Bool) 和 alphabetic(upperCase: Bool)
     jyutping,
     jyutpingUppercase,
     
