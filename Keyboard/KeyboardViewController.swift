@@ -3,6 +3,9 @@ import OpenCC
 
 // KeyboardViewController: UIInputViewController 是键盘的唯一（？）视图，创建一个第三方键盘也就是实现这个 view controller
 // see https://developer.apple.com/documentation/uikit/uiinputviewcontroller
+//    var inputViewStyle: UIInputView.Style { get } // 这是 UIInputViewController 的一个成员
+//        默认值 .default 只会模糊背景, 不会对其染色; 可以使用 .keyboard, 这个会模糊背景并且对其染色, 目前看来 jyutping 使用的是 .default, 自己令设背景色
+// see https://dev.taio.app/#/cn/editor/toolbar
 
 // 重点关注
 // var view: UIView!

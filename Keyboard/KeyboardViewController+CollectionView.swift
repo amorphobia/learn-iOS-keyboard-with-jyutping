@@ -1,5 +1,6 @@
 import UIKit
 
+// 候选词界面
 extension KeyboardViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
