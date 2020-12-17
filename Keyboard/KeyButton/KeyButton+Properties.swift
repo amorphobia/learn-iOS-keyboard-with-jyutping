@@ -183,6 +183,7 @@ extension KeyButton {
         }
     }
     
+    // 文字颜色
     var buttonTintColor: UIColor {
         switch viewController.appearance {
         case .lightModeLightAppearance:

@@ -6,6 +6,7 @@ import OpenCC
 //    var inputViewStyle: UIInputView.Style { get } // 这是 UIInputViewController 的一个成员
 //        默认值 .default 只会模糊背景, 不会对其染色; 可以使用 .keyboard, 这个会模糊背景并且对其染色, 目前看来 jyutping 使用的是 .default, 自己令设背景色
 // see https://dev.taio.app/#/cn/editor/toolbar
+// UPDATE: 好像并不能使用这个, 因为 KeyboardViewController 并不是由我来初始化的, 而这个 inputViewStyle 是只读的
 
 // 重点关注
 // var view: UIView!
