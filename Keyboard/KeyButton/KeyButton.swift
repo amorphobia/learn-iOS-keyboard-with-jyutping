@@ -1,5 +1,13 @@
 import UIKit
 
+// KeyButton: UIButton
+// ├─ subview - keyButtonView: UIView
+// │  ├─ prop - layer: CALayer
+// │  ├─ subview - keyTextLabel: UILabel
+// │  └─ subview - keyImageView: UIImageView
+// ├─ prop - layer: CALayer
+// │  └─ sublayer - shapeLayer: CALayer
+// ├─ subview - previewLabel: UILabel (按键预览)
 final class KeyButton: UIButton {
     
     let keyButtonView: UIView = UIView()
